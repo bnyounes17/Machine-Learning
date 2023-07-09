@@ -1,0 +1,72 @@
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_squared_error
+from math import sqrt
+
+iowa_train_data = '/kaggle/input/house-prices-advanced-regression-techniques/train.csv'
+iowa_train_df = pd.read_csv(iowa_train_data)
+iowa_train_df.head()
+​
+col = iowa_train_df.columns
+
+stat = iowa_train_df.describe()
+
+iowa_test_data = '/kaggle/input/house-prices-advanced-regression-techniques/test.csv'
+iowa_test_df = pd.read_csv(iowa_test_data)
+iowa_test_df.head()
+
+y = iowa_train_df.SalePrice
+
+features = ['LotArea', 'YearBuilt', '1stFlrSF', '2ndFlrSF', 'FullBath', 'BedroomAbvGr', 'TotRmsAbvGrd']
+X = iowa_train_df[features
+
+iowa_train_df['LotArea'].fillna(iowa_train_df['LotArea'].mean(),inplace=True)
+iowa_train_df['YearBuilt'].fillna(0,inplace=True)
+iowa_train_df['1stFlrSF'].fillna(iowa_train_df['1stFlrSF'].mean(),inplace=True)
+iowa_train_df['2ndFlrSF'].fillna(iowa_train_df['2ndFlrSF'].mean(),inplace=True)
+iowa_train_df['FullBath'].fillna(iowa_train_df['FullBath'].mean(),inplace=True)
+iowa_train_df['BedroomAbvGr'].fillna(iowa_train_df['BedroomAbvGr'].mean(),inplace=True)
+iowa_train_df['TotRmsAbvGrd'].fillna(iowa_train_df['TotRmsAbvGrd'].mean(),inplace=True)
+
+iowa_test_df['LotArea'].fillna(iowa_test_df['LotArea'].mean(),inplace=True)
+iowa_test_df['YearBuilt'].fillna(0,inplace=True)
+iowa_test_df['1stFlrSF'].fillna(iowa_test_df['1stFlrSF'].mean(),inplace=True)
+iowa_test_df['2ndFlrSF'].fillna(iowa_test_df['2ndFlrSF'].mean(),inplace=True)
+iowa_test_df['FullBath'].fillna(iowa_test_df['FullBath'].mean(),inplace=True)
+iowa_test_df['BedroomAbvGr'].fillna(iowa_test_df['BedroomAbvGr'].mean(),inplace=True)
+iowa_test_df['TotRmsAbvGrd'].fillna(iowa_test_df['TotRmsAbvGrd'].mean(),inplace=True)
+
+train_X, val_X, train_y, val_y = train_test_split(X, y, random_state = 1)
+
+iowa_model_DT = DecisionTreeRegressor(max_leaf_nodes=100, random_state = 1)
+iowa_model_RF = RandomForestRegressor(random_state = 1)
+
+iowa_model_DT.fit(train_X, train_y)
+iowa_model_RF.fit(train_X, train_y)
+
+val_prediction_DT = iowa_model_DT.predict(val_X)
+val_prediction_RF = iowa_model_RF.predict(val_X)
+
+#MAE
+val_mae_DT = mean_absolute_error(val_prediction_DT, val_y)
+val_mae_RF = mean_absolute_error(val_prediction_RF, val_y)
+
+print("Validation MAE for Decision Tree Model: {:,.0f}".format(val_mae_DT))
+print("Validation MAE for Random Forest Model: {:,.0f}".format(val_mae_RF))
+
+#RMSE
+val_rmse_DT = np.sqrt(mean_squared_error(val_prediction_DT, val_y))
+val_rmse_RF = np.sqrt(mean_squared_error(val_prediction_RF, val_y))
+
+print("Validation RMSE for Decision Tree Model: {:,.0f}".format(val_rmse_DT))
+print("Validation RMSE for Random Forest Model: {:,.0f}".format(val_rmse_RF))
+
+test_X = iowa_test_df[features]
+test_prediction_DT = iowa_model_DT.predict(test_X)
+test_prediction_RF = iowa_model_RF.predict(test_X)
+
+print('id,', 'test_prediction_DT,', 'test_prediction_RF')
+for i, idt in enumerate(iowa_test_df['Id']):
+    print("{}  {:,.0f}  {:,.0f}".format(idt, test_prediction_DT[i],test_prediction_RF[i]))
